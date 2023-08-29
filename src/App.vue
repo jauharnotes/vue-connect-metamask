@@ -3,11 +3,14 @@
     <div>Injected Provider {{ hasProvider ? "DOES" : "DOES NOT" }} Exist</div>
     <button v-if="shouldShowConnectButton" @click="handleConnect">Connect MetaMask</button>
     <div v-if="wallet">{{ `Wallet Accounts: ${wallet[0]}` }}</div>
+    <p v-show="error">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script>
 import detectEthereumProvider from "@metamask/detect-provider";
+import MobileDetect from 'mobile-detect';
+import { formatBalance, formatChainAsNum } from './utils/index'
 
 export default {
   name: "App",
@@ -15,6 +18,9 @@ export default {
     return {
       hasProvider: false,
       wallet: null,
+      isConnecting: false,
+      error: false,
+      errorMessage: ''
     };
   },
   computed: {
@@ -42,6 +48,7 @@ export default {
         window.ethereum.on("accountsChanged", this.refreshAccounts);
       }
     },
+
     refreshAccounts(accounts) {
       if (accounts.length > 0) {
         this.updateWallet(accounts);
@@ -49,15 +56,30 @@ export default {
         this.wallet = null;
       }
     },
+
     async updateWallet(accounts) {
       this.wallet = accounts;
     },
+
     async handleConnect() {
-      const accounts = await window.ethereum.request({
+      this.isConnecting = true;
+      const isMobile = new MobileDetect(window.navigator.userAgent);
+      console.log(isMobile.mobile());
+
+      if (isMobile.mobile()) {
+        window.location.href = "https://metamask.app.link/dapp/https://vue-connect-metamask.vercel.app/"
+      }
+      await window.ethereum.request({
         method: "eth_requestAccounts",
-      });
-      this.updateWallet(accounts);
-      console.log("account: ", accounts);
+      }).then((accounts) => {
+        this.error = false;
+        this.updateWallet(accounts);
+        console.log("account: ", accounts);
+
+      }).catch((err) => {
+        this.error = true;
+        this.errorMessage = err.message;
+      })
     },
   },
 };
@@ -73,6 +95,11 @@ export default {
 }
 button {
   margin-top: 0.5em;
+}
+
+p {
+  color: brown;
+  font-style: italic;
 }
 
 </style>

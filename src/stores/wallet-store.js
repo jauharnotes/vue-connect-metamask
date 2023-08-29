@@ -1,48 +1,46 @@
 import { defineStore } from "pinia";
 import detectEthereumProvider from "@metamask/detect-provider";
-
+import { ref } from "vue";
 
 export const appStore = defineStore("app", () => {
-  state: () => ({
+  const state = ref({
     hasProvider: false,
     wallet: null,
-  }),
+  });
 
-   async function getProvider() {
-      const provider = await detectEthereumProvider({ silent: true });
-      console.log(provider);
-      this.hasProvider = Boolean(provider);
+  async function getProvider() {
+    const provider = await detectEthereumProvider({ silent: true });
+    console.log(provider);
+    state.hasProvider = Boolean(provider);
 
-      if (provider) {
-        const accounts = await window.ethereum.request({
-          method: "eth_accounts",
-        });
-        this.refreshAccounts(accounts);
-        window.ethereum.on("accountsChanged", this.refreshAccounts);
-      }
-    };
-
-    function refreshAccounts(accounts) {
-      if (accounts.length > 0) {
-        this.updateWallet(accounts);
-      } else {
-        this.wallet = null;
-      }
-    };
-
-    async function updateWallet(accounts) {
-      this.wallet = accounts;
-    };
-
-    async function handleConnect() {
+    if (provider) {
       const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
+        method: "eth_accounts",
       });
-      this.updateWallet(accounts);
-      console.log("account: ", accounts);
-    };
+      this.refreshAccounts(accounts);
+      window.ethereum.on("accountsChanged", this.refreshAccounts);
+    }
+  }
 
-    return { state, getProvider, refreshAccounts, updateWallet, handleConnect }
-  },
+  function refreshAccounts(accounts) {
+    if (accounts.length > 0) {
+      updateWallet(accounts);
+    } else {
+      this.wallet = null;
+    }
+  }
 
-);
+  async function updateWallet(accounts) {
+    state.wallet = accounts;
+  }
+
+  async function handleConnect() {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    updateWallet(accounts);
+    console.log("account: ", accounts);
+  }
+
+  return { state, getProvider, refreshAccounts, updateWallet, handleConnect };
+});
