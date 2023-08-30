@@ -1,8 +1,9 @@
 <template>
   <div class="App">
     <div>Injected Provider {{ hasProvider ? "DOES" : "DOES NOT" }} Exist</div>
-    <button v-if="wallet == null" @click="handleConnect">Connect MetaMask</button>
-    <div v-if="wallet">{{ `Wallet Accounts: ${wallet[0]}` }}</div>
+    <button v-if="wallet == null || isConnected == 'no'" @click="handleConnect">Connect MetaMask</button>
+    <button v-else @click="disConnected">Disconnect</button>
+    <div v-if="wallet != null && isConnected == 'yes'">{{ `Wallet Accounts: ${wallet[0]}` }}</div>
     <p v-show="error">{{ errorMessage }}</p>
   </div>
 </template>
@@ -11,6 +12,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import MobileDetect from 'mobile-detect';
 import { formatBalance, formatChainAsNum } from './utils/index'
+import Cookies from "js-cookie";
 
 export default {
   name: "App",
@@ -20,7 +22,8 @@ export default {
       wallet: null,
       isConnecting: false,
       error: false,
-      errorMessage: ''
+      errorMessage: '',
+      isConnected: Cookies.get('connected'),
     };
   },
   computed: {
@@ -63,6 +66,7 @@ export default {
 
     async handleConnect() {
       this.isConnecting = true;
+      Cookies.set('connected', 'yes');
       const isMobile = new MobileDetect(window.navigator.userAgent);
       console.log(isMobile.mobile());
 
@@ -75,12 +79,21 @@ export default {
         this.error = false;
         this.updateWallet(accounts);
         console.log("account: ", accounts);
+        window.location.reload();
 
       }).catch((err) => {
         this.error = true;
         this.errorMessage = err.message;
       })
     },
+
+    disConnected() {
+      var self = this;
+
+      // alert('Disconected success!');
+      Cookies.set('connected', 'no')
+      window.location.reload();
+    }
   },
 };
 </script>
