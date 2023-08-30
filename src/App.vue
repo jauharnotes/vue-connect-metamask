@@ -1,6 +1,8 @@
 <template>
   <div class="App">
-    <div>Injected Provider {{ hasProvider ? "DOES" : "DOES NOT" }} Exist</div>
+    <div>
+      Injected Provider New {{ hasProvider ? "DOES" : "DOES NOT" }} Exist
+    </div>
     <button v-if="wallet == null || isConnected == 'no'" @click="handleConnect">
       Connect MetaMask
     </button>
