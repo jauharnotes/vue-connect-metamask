@@ -67,11 +67,16 @@ export default {
     async handleConnect() {
       this.isConnecting = true;
       Cookies.set('connected', 'yes');
-      const isMobile = new MobileDetect(window.navigator.userAgent);
-      console.log(isMobile.mobile());
+      const isMetaMaskInstalled = typeof window.ethereum !== "undefined";
+      const isMetaMaskActive = isMetaMaskInstalled && (await window.ethereum._metamask.isEnabled());
+      // console.log(isMobile.mobile());
 
-      if (isMobile.mobile()) {
-        window.location.href = "https://metamask.app.link/dapp/https://vue-connect-metamask.vercel.app/"
+      // if (!isMetaMaskActive) {
+      //   const isMobile = new MobileDetect(window.navigator.userAgent);
+      // }
+      if (!isMetaMaskActive) {
+        window.location.href = "https://metamask.app.link/dapp/https://vue-connect-metamask.vercel.app/";
+        return;
       }
       await window.ethereum.request({
         method: "eth_requestAccounts",
