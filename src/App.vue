@@ -73,8 +73,7 @@ export default {
       Cookies.set("connected", "yes");
 
       const isMetaMaskInstalled = typeof window.ethereum !== "undefined";
-      const isMetaMaskActive =
-        isMetaMaskInstalled && (await window.ethereum._metamask.isEnabled());
+      const isMetaMaskActive = isMetaMaskInstalled && window.ethereum.isConnected();
 
       if (!isMetaMaskActive) {
         window.location.href =
