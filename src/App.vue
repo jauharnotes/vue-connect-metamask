@@ -37,6 +37,16 @@ export default {
   },
   mounted() {
     this.getProvider();
+
+    const isMobile = new MobileDetect(window.navigator.userAgent);
+
+    if (window.ethereum) {
+      alert("Metamask Terinstall");
+    } else if (isMobile.mobile() && !window.ethereum) {
+      alert("Pada perangkat Mobile & Metamask tidak Terinstall");
+    } else {
+      alert("Browser dekstop tidak terinstall Metamask");
+    }
   },
   beforeUnmount() {
     window.ethereum?.removeListener("accountsChanged", this.refreshAccounts);
@@ -73,7 +83,8 @@ export default {
       Cookies.set("connected", "yes");
 
       const isMetaMaskInstalled = typeof window.ethereum !== "undefined";
-      const isMetaMaskActive = isMetaMaskInstalled && window.ethereum.isConnected();
+      const isMetaMaskActive =
+        isMetaMaskInstalled && window.ethereum.isConnected();
 
       if (!isMetaMaskActive) {
         window.location.href =
