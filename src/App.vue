@@ -38,8 +38,6 @@ export default {
   mounted() {
     this.getProvider();
 
-    const isMobile = new MobileDetect(window.navigator.userAgent);
-
     if (window.ethereum) {
       alert("Metamask Terinstall");
       console.log(isMobile.mobile());
@@ -86,6 +84,7 @@ export default {
       const isMetaMaskInstalled = typeof window.ethereum !== "undefined";
       const isMetaMaskActive =
         isMetaMaskInstalled && window.ethereum.isConnected();
+      const isMobile = new MobileDetect(window.navigator.userAgent);
 
       // if (!isMetaMaskActive) {
       //   window.location.href =
