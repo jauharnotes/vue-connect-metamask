@@ -42,6 +42,7 @@ export default {
 
     if (window.ethereum) {
       alert("Metamask Terinstall");
+      console.log(isMobile.mobile());
     } else if (isMobile.mobile() && !window.ethereum) {
       alert("Pada perangkat Mobile & Metamask tidak Terinstall");
     } else {
@@ -86,25 +87,33 @@ export default {
       const isMetaMaskActive =
         isMetaMaskInstalled && window.ethereum.isConnected();
 
-      if (!isMetaMaskActive) {
+      // if (!isMetaMaskActive) {
+      //   window.location.href =
+      //     "https://metamask.app.link/dapp/https://vue-connect-metamask.vercel.app/";
+      //   return;
+      // }
+
+      if (isMetaMaskInstalled) {
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+
+          this.error = false;
+          this.updateWallet(accounts);
+          console.log("account:", accounts);
+
+          window.location.reload();
+        } catch (err) {
+          this.error = true;
+          this.errorMessage = err.message;
+        }
+      } else if (isMobile.mobile() && !isMetaMaskInstalled) {
         window.location.href =
           "https://metamask.app.link/dapp/https://vue-connect-metamask.vercel.app/";
         return;
-      }
-
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-
-        this.error = false;
-        this.updateWallet(accounts);
-        console.log("account:", accounts);
-
-        window.location.reload();
-      } catch (err) {
-        this.error = true;
-        this.errorMessage = err.message;
+      } else {
+        alert("please install metamask");
       }
     },
 
