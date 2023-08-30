@@ -1,17 +1,21 @@
 <template>
   <div class="App">
     <div>Injected Provider {{ hasProvider ? "DOES" : "DOES NOT" }} Exist</div>
-    <button v-if="wallet == null || isConnected == 'no'" @click="handleConnect">Connect MetaMask</button>
+    <button v-if="wallet == null || isConnected == 'no'" @click="handleConnect">
+      Connect MetaMask
+    </button>
     <button v-else @click="disConnected">Disconnect</button>
-    <div v-if="wallet != null && isConnected == 'yes'">{{ `Wallet Accounts: ${wallet[0]}` }}</div>
+    <div v-if="wallet != null && isConnected == 'yes'">
+      {{ `Wallet Accounts: ${wallet[0]}` }}
+    </div>
     <p v-show="error">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script>
 import detectEthereumProvider from "@metamask/detect-provider";
-import MobileDetect from 'mobile-detect';
-import { formatBalance, formatChainAsNum } from './utils/index'
+import MobileDetect from "mobile-detect";
+import { formatBalance, formatChainAsNum } from "./utils/index";
 import Cookies from "js-cookie";
 
 export default {
@@ -22,8 +26,8 @@ export default {
       wallet: null,
       isConnecting: false,
       error: false,
-      errorMessage: '',
-      isConnected: Cookies.get('connected'),
+      errorMessage: "",
+      isConnected: Cookies.get("connected"),
     };
   },
   computed: {
@@ -66,39 +70,41 @@ export default {
 
     async handleConnect() {
       this.isConnecting = true;
-      Cookies.set('connected', 'yes');
-      const isMetaMaskInstalled = typeof window.ethereum !== "undefined";
-      const isMetaMaskActive = isMetaMaskInstalled && (await window.ethereum._metamask.isEnabled());
-      // console.log(isMobile.mobile());
+      Cookies.set("connected", "yes");
 
-      // if (!isMetaMaskActive) {
-      //   const isMobile = new MobileDetect(window.navigator.userAgent);
-      // }
+      const isMetaMaskInstalled = typeof window.ethereum !== "undefined";
+      const isMetaMaskActive =
+        isMetaMaskInstalled && (await window.ethereum._metamask.isEnabled());
+
       if (!isMetaMaskActive) {
-        window.location.href = "https://metamask.app.link/dapp/https://vue-connect-metamask.vercel.app/";
+        window.location.href =
+          "https://metamask.app.link/dapp/https://vue-connect-metamask.vercel.app/";
         return;
       }
-      await window.ethereum.request({
-        method: "eth_requestAccounts",
-      }).then((accounts) => {
+
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+
         this.error = false;
         this.updateWallet(accounts);
-        console.log("account: ", accounts);
-        window.location.reload();
+        console.log("account:", accounts);
 
-      }).catch((err) => {
+        window.location.reload();
+      } catch (err) {
         this.error = true;
         this.errorMessage = err.message;
-      })
+      }
     },
 
     disConnected() {
       var self = this;
 
       // alert('Disconected success!');
-      Cookies.set('connected', 'no')
+      Cookies.set("connected", "no");
       window.location.reload();
-    }
+    },
   },
 };
 </script>
@@ -119,5 +125,4 @@ p {
   color: brown;
   font-style: italic;
 }
-
 </style>
